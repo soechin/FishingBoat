@@ -1,0 +1,19 @@
+﻿EXPORTS
+  StartFishing
+  StartLoop
+  StopFishing
+  StopLoop
+  GuessWasd
+  InputText
+  TakeDrop
+  RestartFishing
+
+  GetBoolean
+  SetBoolean
+  GetInteger
+  SetInteger
+  GetRect
+  SetRect
+  GetText
+
+  LogCallback

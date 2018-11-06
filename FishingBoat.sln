@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FishingBoat", "FishingBoat\FishingBoat.vcxproj", "{E3FBE07C-7AFA-4424-8E34-8EBF496B887A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloFisher", "HelloFisher\HelloFisher.csproj", "{AB3CC20B-F0AB-429B-BF3F-54D0F58980FE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3FBE07C-7AFA-4424-8E34-8EBF496B887A} = {E3FBE07C-7AFA-4424-8E34-8EBF496B887A}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E3FBE07C-7AFA-4424-8E34-8EBF496B887A}.Debug|x64.ActiveCfg = Debug|x64
+		{E3FBE07C-7AFA-4424-8E34-8EBF496B887A}.Debug|x64.Build.0 = Debug|x64
+		{E3FBE07C-7AFA-4424-8E34-8EBF496B887A}.Release|x64.ActiveCfg = Release|x64
+		{E3FBE07C-7AFA-4424-8E34-8EBF496B887A}.Release|x64.Build.0 = Release|x64
+		{AB3CC20B-F0AB-429B-BF3F-54D0F58980FE}.Debug|x64.ActiveCfg = Debug|x64
+		{AB3CC20B-F0AB-429B-BF3F-54D0F58980FE}.Debug|x64.Build.0 = Debug|x64
+		{AB3CC20B-F0AB-429B-BF3F-54D0F58980FE}.Release|x64.ActiveCfg = Release|x64
+		{AB3CC20B-F0AB-429B-BF3F-54D0F58980FE}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {33132A4D-EAEB-4D23-985D-A9982D217BDB}
+	EndGlobalSection
+EndGlobal
