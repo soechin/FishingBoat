@@ -26,6 +26,8 @@ namespace HelloFisher
   {
     MainModel m_model;
     FishingBoat.LogFunc m_logFunc;
+    string m_logLast;
+    List<string> m_logList;
     volatile bool m_running;
     Thread m_thread1;
     Thread m_thread2;
@@ -43,6 +45,7 @@ namespace HelloFisher
       m_model = DataContext as MainModel;
 
       m_logFunc = new FishingBoat.LogFunc(LogFunc);
+      m_logList = new List<string>();
       FishingBoat.LogCallback(m_logFunc);
 
       m_running = true;
@@ -177,7 +180,20 @@ namespace HelloFisher
 
     private void LogFunc(string str)
     {
-      Console.WriteLine(str);
+      DateTime now = DateTime.Now;
+
+      if (str == m_logLast) return;
+      m_logLast = str;
+
+      str = now.ToString("[HH:mm:ss.fff] ") + str;
+      m_logList.Add(str);
+
+      if (m_logList.Count > 10)
+      {
+        m_logList.RemoveRange(0, m_logList.Count - 10);
+      }
+
+      m_model.Logs = string.Join("\n", m_logList);
     }
 
     private void DropGold_Click(object sender, RoutedEventArgs e)
@@ -228,6 +244,13 @@ namespace HelloFisher
     {
       get => _status;
       set => SetField(ref _status, value);
+    }
+
+    string _logs;
+    public string Logs
+    {
+      get => _logs;
+      set => SetField(ref _logs, value);
     }
 
     bool _dropGold;

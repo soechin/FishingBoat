@@ -24,57 +24,68 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Text="開關:" />
-        <TextBox
+        <Border
             Width="60"
             Margin="41,0,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            IsEnabled="{Binding Enabled}"
-            IsHitTestVisible="False"
-            IsReadOnly="True"
-            Text="連續">
-            <TextBox.Resources>
-                <Style BasedOn="{StaticResource {x:Type TextBox}}" TargetType="{x:Type TextBox}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Enabled}" Value="True">
-                            <Setter Property="Background" Value="LightGreen" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Resources>
-        </TextBox>
-        <TextBox
+            BorderBrush="LightGray"
+            BorderThickness="1">
+            <TextBlock Text="連續">
+                <TextBlock.Resources>
+                    <Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="{x:Type TextBlock}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Enabled}" Value="True">
+                                <Setter Property="Background" Value="LightGreen" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Enabled}" Value="False">
+                                <Setter Property="Foreground" Value="Gray" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Resources>
+            </TextBlock>
+        </Border>
+        <Border
             Width="60"
             Margin="106,0,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            IsEnabled="{Binding Semiauto}"
-            IsHitTestVisible="False"
-            IsReadOnly="True"
-            Text="手動">
-            <TextBox.Resources>
-                <Style BasedOn="{StaticResource {x:Type TextBox}}" TargetType="{x:Type TextBox}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Semiauto}" Value="True">
-                            <Setter Property="Background" Value="Pink" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Resources>
-        </TextBox>
+            BorderBrush="LightGray"
+            BorderThickness="1">
+            <TextBlock Text="手動">
+                <TextBlock.Resources>
+                    <Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="{x:Type TextBlock}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Semiauto}" Value="True">
+                                <Setter Property="Background" Value="Pink" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Semiauto}" Value="False">
+                                <Setter Property="Foreground" Value="Gray" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Resources>
+            </TextBlock>
+        </Border>
         <TextBlock
             Margin="171,2,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Text="狀態:" />
-        <TextBox
+        <Border
             Width="120"
             Margin="212,0,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            IsHitTestVisible="False"
-            IsReadOnly="True"
-            Text="{Binding Status}" />
+            BorderBrush="LightGray"
+            BorderThickness="1">
+            <TextBlock
+                Foreground="Gray"
+                Text="{Binding Status}"
+                ToolTip="{Binding Logs}"
+                ToolTipService.ShowDuration="60000" />
+        </Border>
         <TextBlock
             Margin="0,28,0,0"
             HorizontalAlignment="Left"
