@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -88,7 +89,14 @@ namespace HelloFisher
       {
         if (m_enabled || m_semiauto)
         {
-          m_step = RunOnce();
+          try
+          {
+            m_step = RunOnce();
+          }
+          catch (SEHException)
+          {
+            m_step = FishingSteps.IDLE;
+          }
 
           if (m_step == FishingSteps.IDLE)
           {

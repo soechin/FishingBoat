@@ -44,7 +44,7 @@ std::wstring g_wasd;
 int __stdcall StartFishing() {
   std::lock_guard<std::mutex> locker(g_mutex);
 
-  LogPrintf(L"開始");
+  LogPrintf(L"準備");
   g_startBegin = timeNow();
 
   return FISHING_START_LOOP;
@@ -55,7 +55,9 @@ int __stdcall StartLoop() {
   int64 startEnd;
   int startTimeout;
 
+  LogPrintf(L"等待開始...");
   startEnd = timeNow();
+
   startTimeout = g_json["TimeoutStart"];
 
   if ((int)(startEnd - g_startBegin) >= startTimeout) {
@@ -75,14 +77,14 @@ int __stdcall StopFishing() {
   int64 stopEnd;
   int stopTimeout, fishingTimeout, sliderDelay, sliderLen;
 
+  LogPrintf(L"收竿");
+  g_stopBegin = stopEnd = timeNow();
+
   stopTimeout = g_json["TimeoutStop"];
   fishingTimeout = g_json["TimeoutFishing"];
   boxRect = g_json["BoxRect"];
   sliderDelay = g_json["SliderDelay"];
   sliderLen = g_json["SliderLen"];
-
-  LogPrintf(L"收竿");
-  g_stopBegin = stopEnd = timeNow();
 
   if ((stopEnd - g_startBegin) >= fishingTimeout) {
     // abort
@@ -115,7 +117,9 @@ int __stdcall StopLoop() {
   int64 stopEnd;
   int stopTimeout;
 
+  LogPrintf(L"等待重試...");
   stopEnd = timeNow();
+
   stopTimeout = g_json["TimeoutStop"];
 
   if ((stopEnd - g_stopBegin) >= stopTimeout) {
@@ -137,6 +141,8 @@ int __stdcall GuessWasd() {
   int x, y, color, type;
   bool ok;
 
+  LogPrintf(L"文字辨識");
+
   arrowRect = g_json["ArrowRect"];
   arrowSize = g_json["ArrowSize"];
   boxRect = g_json["BoxRect"];
@@ -144,7 +150,6 @@ int __stdcall GuessWasd() {
   timerLen = g_json["TimerLen"];
 
   // loop until timer bar is visible
-  LogPrintf(L"猜字");
   timerBegin = timeNow();
   ok = false;
 
@@ -216,6 +221,8 @@ int __stdcall TakeDrop() {
   int x, y, len;
   bool take;
 
+  LogPrintf(L"撿取物品");
+
   boxRect = g_json["BoxRect"];
   timerLen = g_json["TimerLen"];
   dropRect = g_json["DropRect"];
@@ -235,7 +242,6 @@ int __stdcall TakeDrop() {
   matchRate = g_json["MatchRate"];
 
   // loop until timer bar is invisible
-  LogPrintf(L"撿取");
   do {
     sleepFor(100);
     box = screenshot(boxRect);
@@ -364,7 +370,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 
 bool __stdcall GetBoolean(const char *key) {
   std::lock_guard<std::mutex> locker(g_mutex);
-  return g_json[key];
+  try {
+    return g_json[key];
+  } catch (nlohmann::json::exception &) {
+  }
+  return false;
 }
 
 void __stdcall SetBoolean(const char *key, bool val) {
@@ -374,7 +384,11 @@ void __stdcall SetBoolean(const char *key, bool val) {
 
 int __stdcall GetInteger(const char *key) {
   std::lock_guard<std::mutex> locker(g_mutex);
-  return g_json[key];
+  try {
+    return g_json[key];
+  } catch (nlohmann::json::exception &) {
+  }
+  return 0;
 }
 
 void __stdcall SetInteger(const char *key, int val) {
@@ -385,11 +399,15 @@ void __stdcall SetInteger(const char *key, int val) {
 void __stdcall GetRect(const char *key, int *x, int *y, int *width,
                        int *height) {
   std::lock_guard<std::mutex> locker(g_mutex);
-  cv::Rect rect = g_json[key];
-  *x = rect.x;
-  *y = rect.y;
-  *width = rect.width;
-  *height = rect.height;
+  cv::Rect rect;
+  try {
+    rect = g_json[key];
+    *x = rect.x;
+    *y = rect.y;
+    *width = rect.width;
+    *height = rect.height;
+  } catch (nlohmann::json::exception &) {
+  }
 }
 
 void __stdcall SetRect(const char *key, int x, int y, int width, int height) {
