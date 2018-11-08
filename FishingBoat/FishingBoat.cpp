@@ -37,6 +37,9 @@ nlohmann::json g_json;
 int64 g_startBegin;
 int64 g_stopBegin;
 std::map<std::wstring, cv::Mat> g_tmpls;
+std::wstring g_curDir;
+std::wstring g_logDir;
+std::wstring g_tmpDir;
 std::wstring g_wasd;
 
 // running steps
@@ -270,9 +273,10 @@ int __stdcall TakeDrop() {
 
   if (!take) {
     for (auto it = g_tmpls.begin(); it != g_tmpls.end(); it++) {
-      if (matchTemplate(box, it->second, matchRate)) {
+      double val = matchTemplate(box, it->second) * 100;
+      if (val >= matchRate) {
         take = true;
-        LogPrintf(L"模板: %ls", it->first.c_str());
+        LogPrintf(L"%ls => %.1lf%%", it->first.c_str(), val);
         break;
       }
     }
@@ -280,6 +284,9 @@ int __stdcall TakeDrop() {
 
   if (take) {
     keyPress('R');
+    saveImage(g_logDir + L"Drops", box);
+  } else {
+    saveImage(g_logDir + L"NoDrops", box);
   }
 
   return FISHING_RESTART;
@@ -303,7 +310,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     int len;
     WIN32_FIND_DATAW find;
     HANDLE handle;
-    std::wstring dir, pat;
+    std::wstring pat;
     cv::Mat mat;
 
     // json path
@@ -324,20 +331,32 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
       ifs.close();
     }
 
-    // template folder
+    // current folder
     PathRemoveFileSpecW(buf.data());
+    PathAddBackslashW(buf.data());
+    g_curDir = buf.data();
+
+    // log folder
+    buf.assign(g_curDir.begin(), g_curDir.end());
+    buf.resize(buf.size() + MAX_PATH);
+    PathAppendW(buf.data(), L"Logs");
+    PathAddBackslashW(buf.data());
+    g_logDir = buf.data();
+
+    // template folder
+    buf.assign(g_curDir.begin(), g_curDir.end());
+    buf.resize(buf.size() + MAX_PATH);
     PathAppendW(buf.data(), L"Templates");
     PathAddBackslashW(buf.data());
-
-    dir = buf.data();
+    g_tmpDir = buf.data();
 
     // load template images
-    pat = dir + L"*.*";
+    pat = g_tmpDir + L"*.*";
     handle = FindFirstFileW(pat.c_str(), &find);
 
     if (handle != INVALID_HANDLE_VALUE) {
       do {
-        mat = loadImage(dir + find.cFileName);
+        mat = loadImage(g_tmpDir + find.cFileName);
 
         if (!mat.empty()) {
           PathRemoveExtensionW(find.cFileName);

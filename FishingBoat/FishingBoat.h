@@ -32,13 +32,14 @@ bool cursorShowing();
 // image process
 
 cv::Mat loadImage(std::wstring file);
+void saveImage(std::wstring dir, cv::Mat mat);
 cv::Mat screenshot(cv::Rect roi);
 bool sliderBar(cv::Mat box, int len);
 bool timerBar(cv::Mat box, int len, int &x, int &y);
 int arrowColor(cv::Mat arr);
 bool arrowType(cv::Mat arr, int color, double size, int &type);
 bool matchColor(cv::Mat mat, int hue, int dif, int sat, int val, int len);
-bool matchTemplate(cv::Mat mat, cv::Mat tmp, int thr);
+double matchTemplate(cv::Mat mat, cv::Mat tmp);
 
 // running steps
 

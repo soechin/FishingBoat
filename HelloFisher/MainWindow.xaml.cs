@@ -86,6 +86,15 @@ namespace HelloFisher
         {
           Dispatcher.BeginInvoke(new Action(() =>
           {
+            string logFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FishingBoat.log");
+            string logText = string.Empty;
+
+            for (int i = 0; i < m_model.Logs.Count; i++)
+            {
+              logText += m_model.Logs[i].ToString() + "\n";
+            }
+
+            System.IO.File.WriteAllText(logFile, logText);
             m_model.Logs.Clear();
           }));
         }

@@ -21,6 +21,35 @@ cv::Mat loadImage(std::wstring file) {
   return cv::Mat();
 }
 
+void saveImage(std::wstring dir, cv::Mat mat) {
+  std::ofstream ofs;
+  std::vector<uchar> buf;
+  SYSTEMTIME st;
+  wchar_t name[MAX_PATH];
+
+  GetLocalTime(&st);
+  swprintf_s(name, L"%04d-%02d-%02d %02d-%02d-%02d-%3d.png", st.wYear,
+             st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond,
+             st.wMilliseconds);
+
+  if (!dir.empty() && dir.back() != L'\\') {
+    dir += L'\\';
+  }
+
+  if (!PathFileExistsW(dir.c_str())) {
+    return;
+  }
+
+  if (cv::imencode(".png", mat, buf)) {
+    ofs.open(dir + name, std::ios::binary);
+
+    if (ofs.is_open()) {
+      ofs.write((char *)buf.data(), (int)buf.size());
+      ofs.close();
+    }
+  }
+}
+
 cv::Mat screenshot(cv::Rect roi) {
   cv::Mat mat;
   BITMAPINFO bmi;
@@ -348,16 +377,12 @@ bool matchColor(cv::Mat mat, int hue, int dif, int sat, int val, int len) {
   return false;
 }
 
-bool matchTemplate(cv::Mat mat, cv::Mat tmp, int thr) {
+double matchTemplate(cv::Mat mat, cv::Mat tmp) {
   cv::Mat ret;
   double val;
 
   cv::matchTemplate(mat, tmp, ret, cv::TM_CCORR_NORMED);
   cv::minMaxLoc(ret, NULL, &val, NULL, NULL);
 
-  if ((val * 100) >= thr) {
-    return true;
-  }
-
-  return false;
+  return val;
 }
