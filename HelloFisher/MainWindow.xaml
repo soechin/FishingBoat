@@ -69,22 +69,18 @@
             </TextBlock>
         </Border>
         <TextBlock
-            Margin="171,2,0,0"
+            Margin="176,2,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Text="狀態:" />
+            Text="計時:" />
         <Border
-            Width="120"
-            Margin="212,0,0,0"
+            Width="75"
+            Margin="217,0,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             BorderBrush="LightGray"
             BorderThickness="1">
-            <TextBlock
-                Foreground="Gray"
-                Text="{Binding Status}"
-                ToolTip="{Binding Logs}"
-                ToolTipService.ShowDuration="60000" />
+            <TextBlock Foreground="Gray" Text="{Binding Timer}" />
         </Border>
         <TextBlock
             Margin="0,28,0,0"
@@ -161,5 +157,23 @@
             IsEnabled="False"
             ToolTip="{Binding Templates}"
             ToolTipService.ShowOnDisabled="True" />
+        <Expander
+            Margin="0,53,0,0"
+            VerticalAlignment="Top"
+            Header="日誌">
+            <ListBox
+                Height="80"
+                Margin="0,5,0,0"
+                ItemsSource="{Binding Logs}"
+                ScrollViewer.VerticalScrollBarVisibility="Visible"
+                VirtualizingStackPanel.IsVirtualizing="True"
+                VirtualizingStackPanel.VirtualizationMode="Recycling">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Setter Property="Focusable" Value="False" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </Expander>
     </Grid>
 </Window>

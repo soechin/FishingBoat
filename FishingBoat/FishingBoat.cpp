@@ -55,9 +55,7 @@ int __stdcall StartLoop() {
   int64 startEnd;
   int startTimeout;
 
-  LogPrintf(L"等待開始...");
   startEnd = timeNow();
-
   startTimeout = g_json["TimeoutStart"];
 
   if ((int)(startEnd - g_startBegin) >= startTimeout) {
@@ -117,9 +115,7 @@ int __stdcall StopLoop() {
   int64 stopEnd;
   int stopTimeout;
 
-  LogPrintf(L"等待重試...");
   stopEnd = timeNow();
-
   stopTimeout = g_json["TimeoutStop"];
 
   if ((stopEnd - g_stopBegin) >= stopTimeout) {
