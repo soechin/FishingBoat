@@ -10,6 +10,7 @@
     Height="240"
     Closed="Window_Closed"
     Loaded="Window_Loaded"
+    LocationChanged="Window_LocationChanged"
     ResizeMode="CanMinimize"
     SizeToContent="WidthAndHeight"
     Topmost="True"
@@ -175,5 +176,13 @@
                 </ListBox.ItemContainerStyle>
             </ListBox>
         </Expander>
+        <Button
+            Width="32"
+            Margin="260,52,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Background="White"
+            Click="OptionButton_Click"
+            Content="..." />
     </Grid>
 </Window>

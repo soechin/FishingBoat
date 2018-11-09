@@ -34,6 +34,7 @@ namespace HelloFisher
     FishingSteps m_step;
     bool m_enabled;
     bool m_semiauto;
+    OptionWindow m_optWnd;
 
     public MainWindow()
     {
@@ -63,6 +64,20 @@ namespace HelloFisher
       m_running = false;
       m_thread1.Join();
       m_thread2.Join();
+
+      if (m_optWnd != null)
+      {
+        m_optWnd.Close();
+      }
+    }
+
+    private void Window_LocationChanged(object sender, EventArgs e)
+    {
+      if (m_optWnd != null)
+      {
+        m_optWnd.Left = Left + Width;
+        m_optWnd.Top = Top;
+      }
     }
 
     private void Thread_Func1()
@@ -210,6 +225,25 @@ namespace HelloFisher
     private void DropGreen_Click(object sender, RoutedEventArgs e)
     {
       FishingBoat.SetBoolean("DropGreen", m_model.DropGreen);
+    }
+
+    private void OptionButton_Click(object sender, RoutedEventArgs e)
+    {
+      if (m_optWnd != null)
+      {
+        m_optWnd.Close();
+        m_optWnd = null;
+        return;
+      }
+
+      m_optWnd = new OptionWindow
+      {
+        Owner = this
+      };
+
+      m_optWnd.Left = Left + Width;
+      m_optWnd.Top = Top;
+      m_optWnd.Show();
     }
   }
 
