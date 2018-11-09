@@ -179,6 +179,7 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             ItemsSource="{Binding Logs}"
+            ScrollViewer.HorizontalScrollBarVisibility="Hidden"
             ScrollViewer.VerticalScrollBarVisibility="Visible"
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.VirtualizationMode="Recycling"

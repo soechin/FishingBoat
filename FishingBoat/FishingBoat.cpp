@@ -279,9 +279,10 @@ int __stdcall TakeDrop() {
   if (!take) {
     for (auto it = g_tmpls.begin(); it != g_tmpls.end(); it++) {
       double val = matchTemplate(box, it->second) * 100;
+      LogPrintf(L"(%.0lf%%) %ls", val, it->first.c_str());
+
       if (val >= matchRate) {
         take = true;
-        LogPrintf(L"%ls => %.1lf%%", it->first.c_str(), val);
         break;
       }
     }
