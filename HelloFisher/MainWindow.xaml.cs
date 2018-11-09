@@ -245,6 +245,18 @@ namespace HelloFisher
       m_optWnd.Top = Top;
       m_optWnd.Show();
     }
+
+    private void LogButton_Click(object sender, RoutedEventArgs e)
+    {
+      if (m_model.LogVisible == Visibility.Visible)
+      {
+        m_model.LogVisible = Visibility.Collapsed;
+      }
+      else
+      {
+        m_model.LogVisible = Visibility.Visible;
+      }
+    }
   }
 
   class MainModel : INotifyPropertyChanged
@@ -314,6 +326,13 @@ namespace HelloFisher
     {
       get => _templates;
       set => SetField(ref _templates, value);
+    }
+
+    Visibility _logVisible = Visibility.Collapsed;
+    public Visibility LogVisible
+    {
+      get => _logVisible;
+      set => SetField(ref _logVisible, value);
     }
   }
 }

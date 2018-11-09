@@ -6,8 +6,6 @@
     xmlns:local="clr-namespace:HelloFisher"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="FishingBoat"
-    Width="360"
-    Height="240"
     Closed="Window_Closed"
     Loaded="Window_Loaded"
     LocationChanged="Window_LocationChanged"
@@ -158,24 +156,6 @@
             IsEnabled="False"
             ToolTip="{Binding Templates}"
             ToolTipService.ShowOnDisabled="True" />
-        <Expander
-            Margin="0,53,0,0"
-            VerticalAlignment="Top"
-            Header="日誌">
-            <ListBox
-                Height="80"
-                Margin="0,5,0,0"
-                ItemsSource="{Binding Logs}"
-                ScrollViewer.VerticalScrollBarVisibility="Visible"
-                VirtualizingStackPanel.IsVirtualizing="True"
-                VirtualizingStackPanel.VirtualizationMode="Recycling">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="{x:Type ListBoxItem}">
-                        <Setter Property="Focusable" Value="False" />
-                    </Style>
-                </ListBox.ItemContainerStyle>
-            </ListBox>
-        </Expander>
         <Button
             Width="32"
             Margin="260,52,0,0"
@@ -183,6 +163,31 @@
             VerticalAlignment="Top"
             Background="White"
             Click="OptionButton_Click"
-            Content="..." />
+            Content="O" />
+        <Button
+            Width="32"
+            Margin="223,52,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Background="White"
+            Click="LogButton_Click"
+            Content="L" />
+        <ListBox
+            Width="297"
+            Height="100"
+            Margin="0,81,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            ItemsSource="{Binding Logs}"
+            ScrollViewer.VerticalScrollBarVisibility="Visible"
+            VirtualizingPanel.IsVirtualizing="True"
+            VirtualizingPanel.VirtualizationMode="Recycling"
+            Visibility="{Binding LogVisible}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="Focusable" Value="False" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
     </Grid>
 </Window>
