@@ -82,23 +82,6 @@ namespace HelloFisher
           m_semiauto = true;
         }
 
-        if (m_semiauto && !semiauto)
-        {
-          Dispatcher.BeginInvoke(new Action(() =>
-          {
-            string logFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FishingBoat.log");
-            string logText = string.Empty;
-
-            for (int i = 0; i < m_model.Logs.Count; i++)
-            {
-              logText += m_model.Logs[i].ToString() + "\n";
-            }
-
-            System.IO.File.WriteAllText(logFile, logText);
-            m_model.Logs.Clear();
-          }));
-        }
-
         Thread.Sleep(100);
       }
     }
@@ -208,15 +191,9 @@ namespace HelloFisher
 
     private void LogFunc(string str)
     {
-      DateTime now = DateTime.Now;
-
       Dispatcher.BeginInvoke(new Action(() =>
       {
-        m_model.Logs.Insert(0, new LogEntry
-        {
-          Date = now,
-          Text = str,
-        });
+        m_model.Logs.Insert(0, str);
       }));
     }
 
@@ -270,8 +247,8 @@ namespace HelloFisher
       set => SetField(ref _timer, value);
     }
 
-    ObservableCollection<LogEntry> _logs = new ObservableCollection<LogEntry>();
-    public ObservableCollection<LogEntry> Logs
+    ObservableCollection<string> _logs = new ObservableCollection<string>();
+    public ObservableCollection<string> Logs
     {
       get => _logs;
       set => SetField(ref _logs, value);
@@ -303,17 +280,6 @@ namespace HelloFisher
     {
       get => _templates;
       set => SetField(ref _templates, value);
-    }
-  }
-
-  class LogEntry
-  {
-    public DateTime Date;
-    public string Text;
-
-    public override string ToString()
-    {
-      return string.Format("[{0}] {1}", Date.ToString("HH:mm:ss.fff"), Text);
     }
   }
 }

@@ -36,11 +36,16 @@ std::wstring g_inifile;
 nlohmann::json g_json;
 int64 g_startBegin;
 int64 g_stopBegin;
-std::map<std::wstring, cv::Mat> g_tmpls;
 std::wstring g_curDir;
 std::wstring g_logDir;
+std::wstring g_logDropsDir;
+std::wstring g_logNodropsDir;
 std::wstring g_tmpDir;
 std::wstring g_wasd;
+std::map<std::wstring, cv::Mat> g_tmpls;
+std::mutex g_logMutex;
+LOG_FUNC g_logFunc;
+std::ofstream g_logFile;
 
 // running steps
 
@@ -284,9 +289,9 @@ int __stdcall TakeDrop() {
 
   if (take) {
     keyPress('R');
-    saveImage(g_logDir + L"Drops", box);
+    saveImage(g_logDropsDir, box);
   } else {
-    saveImage(g_logDir + L"NoDrops", box);
+    saveImage(g_logNodropsDir, box);
   }
 
   return FISHING_RESTART;
@@ -308,6 +313,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     std::ifstream ifs;
     std::vector<wchar_t> buf;
     int len;
+    SYSTEMTIME st;
     WIN32_FIND_DATAW find;
     HANDLE handle;
     std::wstring pat;
@@ -342,6 +348,19 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     PathAppendW(buf.data(), L"Logs");
     PathAddBackslashW(buf.data());
     g_logDir = buf.data();
+    g_logDropsDir = g_logDir + L"Drops\\";
+    g_logNodropsDir = g_logDir + L"Nodrops\\";
+
+    CreateDirectoryW(g_logDir.c_str(), NULL);
+    CreateDirectoryW(g_logDropsDir.c_str(), NULL);
+    CreateDirectoryW(g_logNodropsDir.c_str(), NULL);
+
+    // open log file
+    GetLocalTime(&st);
+    buf.resize(128);
+    swprintf_s(buf.data(), buf.size(), L"%04d-%02d-%02d.log", st.wYear,
+               st.wMonth, st.wDay);
+    g_logFile.open(g_logDir + buf.data(), std::ios::app);
 
     // template folder
     buf.assign(g_curDir.begin(), g_curDir.end());
@@ -349,6 +368,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     PathAppendW(buf.data(), L"Templates");
     PathAddBackslashW(buf.data());
     g_tmpDir = buf.data();
+
+    CreateDirectoryW(g_tmpDir.c_str(), NULL);
 
     // load template images
     pat = g_tmpDir + L"*.*";
@@ -375,6 +396,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     if (ofs.is_open()) {
       ofs << g_json.dump(4);
       ofs.close();
+    }
+
+    // close log file
+    if (g_logFile.is_open()) {
+      g_logFile.close();
     }
   }
 
@@ -453,21 +479,41 @@ BSTR __stdcall GetText(const char *key) {
 
 // log
 
-std::mutex g_logMutex;
-LOG_FUNC g_logFunc;
-
 void LogPrintf(const wchar_t *fmt, ...) {
   std::lock_guard<std::mutex> locker(g_logMutex);
   std::vector<wchar_t> buf;
+  std::vector<char> utf;
+  std::wstring str;
   va_list ap;
+  SYSTEMTIME st;
+  int len;
+
+  GetLocalTime(&st);
+  buf.resize(128);
+  swprintf_s(buf.data(), buf.size(), L"[%02d:%02d:%02d.%03d] ", st.wHour,
+             st.wMinute, st.wSecond, st.wMilliseconds);
+  str += buf.data();
 
   va_start(ap, fmt);
   buf.resize(_vscwprintf(fmt, ap) + 1);
   vswprintf_s(buf.data(), buf.size(), fmt, ap);
   va_end(ap);
+  str += buf.data();
+
+  if (g_logFile.is_open()) {
+    len = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), (int)str.length(), NULL,
+                              0, NULL, NULL);
+    utf.resize(len + 1);
+    len = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), (int)str.length(),
+                              utf.data(), (int)utf.size(), NULL, NULL);
+    utf.resize(len + 1);
+
+    g_logFile << utf.data() << std::endl;
+    g_logFile.flush();
+  }
 
   if (g_logFunc != NULL) {
-    g_logFunc(buf.data());
+    g_logFunc(str.c_str());
   }
 }
 

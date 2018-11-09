@@ -28,7 +28,7 @@ void saveImage(std::wstring dir, cv::Mat mat) {
   wchar_t name[MAX_PATH];
 
   GetLocalTime(&st);
-  swprintf_s(name, L"%04d-%02d-%02d %02d-%02d-%02d-%3d.png", st.wYear,
+  swprintf_s(name, L"%04d%02d%02d-%02d%02d%02d%3d.png", st.wYear,
              st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond,
              st.wMilliseconds);
 
