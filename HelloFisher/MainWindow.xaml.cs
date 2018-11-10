@@ -212,21 +212,6 @@ namespace HelloFisher
       }));
     }
 
-    private void DropGold_Click(object sender, RoutedEventArgs e)
-    {
-      FishingBoat.SetBoolean("DropGold", m_model.DropGold);
-    }
-
-    private void DropBlue_Click(object sender, RoutedEventArgs e)
-    {
-      FishingBoat.SetBoolean("DropBlue", m_model.DropBlue);
-    }
-
-    private void DropGreen_Click(object sender, RoutedEventArgs e)
-    {
-      FishingBoat.SetBoolean("DropGreen", m_model.DropGreen);
-    }
-
     private void OptionButton_Click(object sender, RoutedEventArgs e)
     {
       if (m_optWnd != null)
@@ -263,13 +248,16 @@ namespace HelloFisher
   {
     public event PropertyChangedEventHandler PropertyChanged;
 
-    protected void SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
     {
       if (!EqualityComparer<T>.Default.Equals(field, value))
       {
         field = value;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        return true;
       }
+
+      return false;
     }
 
     bool _enabled = false;
@@ -304,21 +292,39 @@ namespace HelloFisher
     public bool DropGold
     {
       get => _dropGold;
-      set => SetField(ref _dropGold, value);
+      set
+      {
+        if (SetField(ref _dropGold, value))
+        {
+          FishingBoat.SetBoolean("DropGold", value);
+        }
+      }
     }
 
     bool _dropBlue;
     public bool DropBlue
     {
       get => _dropBlue;
-      set => SetField(ref _dropBlue, value);
+      set
+      {
+        if (SetField(ref _dropBlue, value))
+        {
+          FishingBoat.SetBoolean("DropBlue", value);
+        }
+      }
     }
 
     bool _dropGreen;
     public bool DropGreen
     {
       get => _dropGreen;
-      set => SetField(ref _dropGreen, value);
+      set
+      {
+        if (SetField(ref _dropGreen, value))
+        {
+          FishingBoat.SetBoolean("DropGreen", value);
+        }
+      }
     }
 
     string _templates;

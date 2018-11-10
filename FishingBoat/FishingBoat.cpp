@@ -290,6 +290,7 @@ int __stdcall TakeDrop() {
 
   if (take) {
     keyPress('R');
+    sleepFor(100);
     saveImage(g_logDropsDir, box);
   } else {
     saveImage(g_logNodropsDir, box);
@@ -300,9 +301,37 @@ int __stdcall TakeDrop() {
 
 int __stdcall RestartFishing() {
   std::lock_guard<std::mutex> locker(g_mutex);
+  time_t foodUsed, tnow;
+  int foodHotkey, foodTime;
+  bool foodEnabled;
+  double tsec;
+
+  foodHotkey = g_json["FoodHotkey"];
+  foodTime = g_json["FoodTime"];
+  foodEnabled = g_json["FoodEnabled"];
+  foodUsed = g_json["FoodUsed"];
 
   LogPrintf(L"拋竿");
   keyPress(VK_SPACE);
+  sleepFor(100);
+
+  if (foodEnabled) {
+    tnow = time(NULL);
+    tsec = difftime(tnow, foodUsed);
+
+    if (tsec > foodTime) {
+      g_json["FoodUsed"] = tnow;
+
+      if (isprint(foodHotkey)) {
+        LogPrintf(L"使用食物 %c", foodHotkey);
+      } else {
+        LogPrintf(L"使用食物 %xh", foodHotkey);
+      }
+
+      keyPress(foodHotkey);
+      sleepFor(100);
+    }
+  }
 
   return FISHING_START;
 }

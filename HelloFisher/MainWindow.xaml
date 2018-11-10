@@ -90,7 +90,6 @@
             Margin="73,28,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Click="DropGold_Click"
             Content="金色"
             IsChecked="{Binding DropGold}">
             <CheckBox.Resources>
@@ -110,7 +109,6 @@
             Margin="130,28,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Click="DropBlue_Click"
             Content="藍色"
             IsChecked="{Binding DropBlue}">
             <CheckBox.Resources>
@@ -130,7 +128,6 @@
             Margin="188,28,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Click="DropGreen_Click"
             Content="綠色"
             IsChecked="{Binding DropGreen}">
             <CheckBox.Resources>
