@@ -34,6 +34,9 @@ namespace HelloFisher
       m_model.FoodHotkey = FishingBoat.GetInteger("FoodHotkey");
       m_model.FoodTime = FishingBoat.GetInteger("FoodTime");
       m_model.FoodEnabled = FishingBoat.GetBoolean("FoodEnabled");
+      m_model.LogDrops = FishingBoat.GetBoolean("LogDrops");
+      m_model.LogSlider = FishingBoat.GetBoolean("LogSlider");
+      m_model.LogTimer = FishingBoat.GetBoolean("LogTimer");
     }
 
     private void Window_Closed(object sender, EventArgs e)
@@ -92,6 +95,45 @@ namespace HelloFisher
         if (SetField(ref _foodEnabled, value))
         {
           FishingBoat.SetBoolean("FoodEnabled", value);
+        }
+      }
+    }
+
+    bool _logDrops;
+    public bool LogDrops
+    {
+      get => _logDrops;
+      set
+      {
+        if (SetField(ref _logDrops, value))
+        {
+          FishingBoat.SetBoolean("LogDrops", value);
+        }
+      }
+    }
+
+    bool _logSlider;
+    public bool LogSlider
+    {
+      get => _logSlider;
+      set
+      {
+        if (SetField(ref _logSlider, value))
+        {
+          FishingBoat.SetBoolean("LogSlider", value);
+        }
+      }
+    }
+
+    bool _logTimer;
+    public bool LogTimer
+    {
+      get => _logTimer;
+      set
+      {
+        if (SetField(ref _logTimer, value))
+        {
+          FishingBoat.SetBoolean("LogTimer", value);
         }
       }
     }

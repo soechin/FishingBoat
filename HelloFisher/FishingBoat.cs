@@ -55,6 +55,10 @@ namespace HelloFisher
     [return: MarshalAs(UnmanagedType.BStr)]
     public static extern string GetText(string key);
 
+    [DllImport("FishingBoat.dll")]
+    [return: MarshalAs(UnmanagedType.BStr)]
+    public static extern string GetImage(string key);
+
     public delegate void LogFunc([MarshalAs(UnmanagedType.LPWStr)] string str);
     [DllImport("FishingBoat.dll")]
     public static extern void LogCallback(LogFunc func);

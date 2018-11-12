@@ -19,12 +19,11 @@
     </Window.DataContext>
     <Grid Margin="10">
         <Expander
-            Padding="5"
             VerticalAlignment="Top"
             BorderBrush="LightGray"
             Header="料理"
             IsExpanded="True">
-            <Grid>
+            <Grid Margin="5">
                 <TextBlock
                     Margin="0,1,0,0"
                     HorizontalAlignment="Left"
@@ -55,6 +54,33 @@
                     VerticalAlignment="Top"
                     Content="啟用"
                     IsChecked="{Binding FoodEnabled}" />
+            </Grid>
+        </Expander>
+        <Expander
+            Margin="0,61,0,0"
+            VerticalAlignment="Top"
+            BorderBrush="LightGray"
+            Header="偵錯"
+            IsExpanded="True">
+            <Grid Margin="5">
+                <CheckBox
+                    Margin="0,2,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Content="掉落物"
+                    IsChecked="{Binding LogDrops}" />
+                <CheckBox
+                    Margin="0,26,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Content="圖片1"
+                    IsChecked="{Binding LogSlider}" />
+                <CheckBox
+                    Margin="0,49,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Content="圖片2"
+                    IsChecked="{Binding LogTimer}" />
             </Grid>
         </Expander>
     </Grid>

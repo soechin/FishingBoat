@@ -22,15 +22,19 @@ cv::Mat loadImage(std::wstring file) {
 }
 
 void saveImage(std::wstring dir, cv::Mat mat) {
-  std::ofstream ofs;
-  std::vector<uchar> buf;
   SYSTEMTIME st;
   wchar_t name[MAX_PATH];
 
   GetLocalTime(&st);
-  swprintf_s(name, L"%04d%02d%02d-%02d%02d%02d%3d.png", st.wYear,
-             st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond,
-             st.wMilliseconds);
+  swprintf_s(name, L"%04d%02d%02d-%02d%02d%02d%3d.png", st.wYear, st.wMonth,
+             st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+
+  saveImage(dir, name, mat);
+}
+
+void saveImage(std::wstring dir, std::wstring name, cv::Mat mat) {
+  std::ofstream ofs;
+  std::vector<uchar> buf;
 
   if (!dir.empty() && dir.back() != L'\\') {
     dir += L'\\';
@@ -115,7 +119,7 @@ cv::Mat screenshot(cv::Rect roi) {
   return mat;
 }
 
-bool sliderBar(cv::Mat box, int len) {
+bool sliderBar(cv::Mat box, int len, int &x, int &y) {
   int mid = box.cols / 2;
 
   for (int j = 0; j < (box.rows - 1); j++) {
@@ -169,6 +173,8 @@ bool sliderBar(cv::Mat box, int len) {
     }
 
     if ((right - left + 1) >= len) {
+      x = left;
+      y = j;
       return true;
     }
   }

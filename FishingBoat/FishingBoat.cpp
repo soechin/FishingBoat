@@ -82,6 +82,8 @@ int __stdcall StopFishing() {
   cv::Rect boxRect;
   int64 stopEnd;
   int stopTimeout, fishingTimeout, sliderDelay, sliderLen;
+  int x, y;
+  bool logSlider;
 
   LogPrintf(L"收竿");
   g_stopBegin = stopEnd = timeNow();
@@ -91,6 +93,7 @@ int __stdcall StopFishing() {
   boxRect = g_json["BoxRect"];
   sliderDelay = g_json["SliderDelay"];
   sliderLen = g_json["SliderLen"];
+  logSlider = g_json["LogSlider"];
 
   if ((stopEnd - g_startBegin) >= fishingTimeout) {
     // abort
@@ -109,10 +112,24 @@ int __stdcall StopFishing() {
 
   box = screenshot(boxRect);
 
-  if (sliderBar(box, sliderLen)) {
+  if (sliderBar(box, sliderLen, x, y)) {
     keyPress(VK_SPACE);
     LogPrintf(L"空白鍵(第2次)");
+
+    if (logSlider) {
+      cv::line(box, cv::Point(x - 5, y), cv::Point(x + 5, y),
+               cv::Scalar(0, 255, 255));
+      cv::line(box, cv::Point(x, y - 5), cv::Point(x, y + 5),
+               cv::Scalar(0, 255, 255));
+
+      saveImage(g_logDir, L"slider.png", box);
+    }
+
     return FISHING_GUESS_WASD;
+  }
+
+  if (logSlider) {
+    saveImage(g_logDir, L"slider.png", box);
   }
 
   return FISHING_STOP_LOOP;
@@ -143,7 +160,7 @@ int __stdcall GuessWasd() {
   int64 timerBegin, timerEnd;
   int timerDelay, timerLen, arrowSize;
   int x, y, color, type;
-  bool ok;
+  bool ok, logTimer;
 
   LogPrintf(L"文字辨識");
 
@@ -152,6 +169,7 @@ int __stdcall GuessWasd() {
   boxRect = g_json["BoxRect"];
   timerDelay = g_json["TimerDelay"];
   timerLen = g_json["TimerLen"];
+  logTimer = g_json["LogTimer"];
 
   // loop until timer bar is visible
   timerBegin = timeNow();
@@ -171,19 +189,45 @@ int __stdcall GuessWasd() {
 
   if (!ok) {
     LogPrintf(L"完美");
+
+    if (logTimer) {
+      saveImage(g_logDir, L"timer.png", box);
+    }
+
     return FISHING_TAKE_DROP;
+  }
+
+  if (logTimer) {
+    cv::line(box, cv::Point(x - 5, y), cv::Point(x + 5, y),
+             cv::Scalar(0, 255, 255));
+    cv::line(box, cv::Point(x, y - 5), cv::Point(x, y + 5),
+             cv::Scalar(0, 255, 255));
   }
 
   arrowRect.x += x;
   arrowRect.y += y;
 
   for (int i = 0; i < 10; i++) {
-    arrs[i] = box(arrowRect);
+    arrs[i] = box(arrowRect).clone();
+
+    if (logTimer) {
+      cv::line(box, cv::Point(arrowRect.x, arrowRect.y - 5),
+               cv::Point(arrowRect.x, arrowRect.y + 5),
+               cv::Scalar(0, 255, 255));
+    }
+
     arrowRect.x += arrowRect.width;
   }
 
-  color = arrowColor(arrs[0]);
+  if (logTimer) {
+    cv::line(box, cv::Point(arrowRect.x, arrowRect.y - 5),
+             cv::Point(arrowRect.x, arrowRect.y + 5), cv::Scalar(0, 255, 255));
+    cv::line(box, cv::Point(arrowRect.x - arrowRect.width * 10, arrowRect.y),
+             cv::Point(arrowRect.x, arrowRect.y), cv::Scalar(0, 255, 255));
+    saveImage(g_logDir, L"timer.png", box);
+  }
 
+  color = arrowColor(arrs[0]);
   if (color != arrowColor(arrs[1])) {
     LogPrintf(L"顏色不對");
     return FISHING_TAKE_DROP;
@@ -223,7 +267,7 @@ int __stdcall TakeDrop() {
   int goldVal, blueVal, greenVal;
   int timerLen, matchRate;
   int x, y, len;
-  bool take;
+  bool take, logDrops;
 
   LogPrintf(L"撿取物品");
 
@@ -244,6 +288,7 @@ int __stdcall TakeDrop() {
   blueVal = g_json["Color"]["BlueVal"];
   greenVal = g_json["Color"]["GreenVal"];
   matchRate = g_json["MatchRate"];
+  logDrops = g_json["LogDrops"];
 
   // loop until timer bar is invisible
   do {
@@ -291,9 +336,14 @@ int __stdcall TakeDrop() {
   if (take) {
     keyPress('R');
     sleepFor(100);
-    saveImage(g_logDropsDir, box);
+
+    if (logDrops) {
+      saveImage(g_logDropsDir, box);
+    }
   } else {
-    saveImage(g_logNodropsDir, box);
+    if (logDrops) {
+      saveImage(g_logNodropsDir, box);
+    }
   }
 
   return FISHING_RESTART;

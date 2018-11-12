@@ -33,8 +33,9 @@ bool cursorShowing();
 
 cv::Mat loadImage(std::wstring file);
 void saveImage(std::wstring dir, cv::Mat mat);
+void saveImage(std::wstring dir, std::wstring name, cv::Mat mat);
 cv::Mat screenshot(cv::Rect roi);
-bool sliderBar(cv::Mat box, int len);
+bool sliderBar(cv::Mat box, int len, int &x, int &y);
 bool timerBar(cv::Mat box, int len, int &x, int &y);
 int arrowColor(cv::Mat arr);
 bool arrowType(cv::Mat arr, int color, double size, int &type);
