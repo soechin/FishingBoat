@@ -122,11 +122,12 @@ cv::Mat screenshot(cv::Rect roi) {
 bool sliderBar(cv::Mat box, int len, int &x, int &y) {
   int mid = box.cols / 2;
 
-  for (int j = 0; j < (box.rows - 1); j++) {
+  for (int j = 1; j < (box.rows - 1); j++) {
     // R R R R R R ? ? ?
     // . . . . . . ? ? ? W W W W
     uchar *p = box.ptr(j);
     uchar *q = box.ptr(j + 1);
+    uchar *u = box.ptr(j - 1);
     int left = mid;
     int right = mid - 1;
 
@@ -160,12 +161,16 @@ bool sliderBar(cv::Mat box, int len, int &x, int &y) {
 
     // skip some pixels and find right edge
     for (int i = (left + right + len) / 2; i < box.cols; i++) {
-      int b = q[i * 3 + 0];
-      int g = q[i * 3 + 1];
-      int r = q[i * 3 + 2];
+      int b1 = q[i * 3 + 0];
+      int g1 = q[i * 3 + 1];
+      int r1 = q[i * 3 + 2];
+      int b2 = u[i * 3 + 0];
+      int g2 = u[i * 3 + 1];
+      int r2 = u[i * 3 + 2];
 
       // white color
-      if (b >= 200 && g >= 200 && r >= 200) {
+      if ((b1 >= 200 && g1 >= 200 && r1 >= 200) ||
+          (b2 >= 200 && g2 >= 200 && r2 >= 200)) {
         right = i;
       } else {
         break;
@@ -278,15 +283,22 @@ bool arrowType(cv::Mat arr, int color, double size, int &type) {
     uchar *q = bin.ptr(j);
 
     for (int i = 0; i < arr.cols; i++) {
-      int b = p[i * 3 + 0];
-      int g = p[i * 3 + 1];
-      int r = p[i * 3 + 2];
-      int n = RGB(r, g, b);
-      q[i] = (n == color) ? 255 : 0;
+      int b1 = GetBValue(color);
+      int g1 = GetGValue(color);
+      int r1 = GetRValue(color);
+      int b2 = p[i * 3 + 0];
+      int g2 = p[i * 3 + 1];
+      int r2 = p[i * 3 + 2];
+
+      if (abs(b1 - b2) < 10 && abs(g1 - g2) < 10 && abs(r1 - r2) < 10) {
+        q[i] = 255;
+      } else {
+        q[i] = 0;
+      }
     }
   }
 
-  cv::findContours(bin, conts, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+  cv::findContours(bin.clone(), conts, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
   idx = 0;
   area = 0;
 
@@ -384,11 +396,17 @@ bool matchColor(cv::Mat mat, int hue, int dif, int sat, int val, int len) {
 }
 
 double matchTemplate(cv::Mat mat, cv::Mat tmp) {
-  cv::Mat ret;
-  double val;
+  cv::Mat emp, ret;
+  double low, val;
 
-  cv::matchTemplate(mat, tmp, ret, cv::TM_CCORR_NORMED);
+  emp.create(tmp.size(), tmp.type());
+  emp.setTo(cv::Scalar::all(0));
+  cv::matchTemplate(emp, tmp, ret, cv::TM_CCOEFF_NORMED);
+  cv::minMaxLoc(ret, NULL, &low, NULL, NULL);
+
+  cv::matchTemplate(mat, tmp, ret, cv::TM_CCOEFF_NORMED);
   cv::minMaxLoc(ret, NULL, &val, NULL, NULL);
 
+  val = (val - low) / (1 - low);
   return val;
 }

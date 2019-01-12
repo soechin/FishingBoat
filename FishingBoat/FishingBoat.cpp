@@ -300,24 +300,27 @@ int __stdcall TakeDrop() {
   len = box.cols / 8;
   take = !dropGold && !dropBlue && !dropGreen;
 
-  if (!take && dropGold) {
-    if (matchColor(box, goldHue, hueDif, goldSat, goldVal, len)) {
+  if (matchColor(box, goldHue, hueDif, goldSat, goldVal, len)) {
+    LogPrintf(L"金色");
+
+    if (dropGold) {
       take = true;
-      LogPrintf(L"金色");
     }
   }
 
-  if (!take && dropBlue) {
-    if (matchColor(box, blueHue, hueDif, blueSat, blueVal, len)) {
+  if (matchColor(box, blueHue, hueDif, blueSat, blueVal, len)) {
+    LogPrintf(L"藍色");
+
+    if (dropBlue) {
       take = true;
-      LogPrintf(L"藍色");
     }
   }
 
-  if (!take && dropGreen) {
-    if (matchColor(box, greenHue, hueDif, greenSat, greenVal, len)) {
+  if (matchColor(box, greenHue, hueDif, greenSat, greenVal, len)) {
+    LogPrintf(L"綠色");
+
+    if (dropGreen) {
       take = true;
-      LogPrintf(L"綠色");
     }
   }
 
