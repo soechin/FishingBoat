@@ -38,6 +38,7 @@ int64 g_startBegin;
 int64 g_stopBegin;
 std::wstring g_curDir;
 std::wstring g_logDir;
+std::wstring g_logName;
 std::wstring g_logDropsDir;
 std::wstring g_logNodropsDir;
 std::wstring g_tmpDir;
@@ -159,9 +160,14 @@ int __stdcall GuessWasd() {
   cv::Rect arrowRect, boxRect;
   int64 timerBegin, timerEnd;
   int timerDelay, timerLen, arrowSize;
-  int x, y, color, type;
+  int x, y, color, type, tries;
   bool ok, logTimer;
 
+  // loop until timer bar is visible
+  timerBegin = timeNow();
+  tries = 10;
+
+OnTry:
   LogPrintf(L"文字辨識");
 
   arrowRect = g_json["ArrowRect"];
@@ -171,8 +177,6 @@ int __stdcall GuessWasd() {
   timerLen = g_json["TimerLen"];
   logTimer = g_json["LogTimer"];
 
-  // loop until timer bar is visible
-  timerBegin = timeNow();
   ok = false;
 
   do {
@@ -230,6 +234,12 @@ int __stdcall GuessWasd() {
   color = arrowColor(arrs[0]);
   if (color != arrowColor(arrs[1])) {
     LogPrintf(L"顏色不對");
+
+    if (--tries > 0) {
+      LogPrintf(L"再試一次(%d)", tries);
+      goto OnTry;
+    }
+
     return FISHING_TAKE_DROP;
   }
 
@@ -396,7 +406,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     std::ifstream ifs;
     std::vector<wchar_t> buf;
     int len;
-    SYSTEMTIME st;
     WIN32_FIND_DATAW find;
     HANDLE handle;
     std::wstring pat;
@@ -437,13 +446,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     CreateDirectoryW(g_logDir.c_str(), NULL);
     CreateDirectoryW(g_logDropsDir.c_str(), NULL);
     CreateDirectoryW(g_logNodropsDir.c_str(), NULL);
-
-    // open log file
-    GetLocalTime(&st);
-    buf.resize(128);
-    swprintf_s(buf.data(), buf.size(), L"%04d-%02d-%02d.log", st.wYear,
-               st.wMonth, st.wDay);
-    g_logFile.open(g_logDir + buf.data(), std::ios::app);
 
     // template folder
     buf.assign(g_curDir.begin(), g_curDir.end());
@@ -566,13 +568,23 @@ void LogPrintf(const wchar_t *fmt, ...) {
   std::lock_guard<std::mutex> locker(g_logMutex);
   std::vector<wchar_t> buf;
   std::vector<char> utf;
-  std::wstring str;
+  std::wstring str, name;
   va_list ap;
   SYSTEMTIME st;
   int len;
 
   GetLocalTime(&st);
   buf.resize(128);
+
+  swprintf_s(buf.data(), buf.size(), L"%04d-%02d-%02d.log", st.wYear, st.wMonth,
+             st.wDay);
+  name = buf.data();
+
+  if (g_logName != name) {
+    g_logFile.close();
+    g_logFile.open(g_logDir + name, std::ios::app);
+  }
+
   swprintf_s(buf.data(), buf.size(), L"[%02d:%02d:%02d.%03d] ", st.wHour,
              st.wMinute, st.wSecond, st.wMilliseconds);
   str += buf.data();
