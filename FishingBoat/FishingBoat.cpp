@@ -41,6 +41,7 @@ std::wstring g_logDir;
 std::wstring g_logName;
 std::wstring g_logDropsDir;
 std::wstring g_logNodropsDir;
+std::wstring g_logErrorsDir;
 std::wstring g_tmpDir;
 std::wstring g_wasd;
 std::map<std::wstring, cv::Mat> g_tmpls;
@@ -118,10 +119,8 @@ int __stdcall StopFishing() {
     LogPrintf(L"空白鍵(第2次)");
 
     if (logSlider) {
-      cv::line(box, cv::Point(x - 5, y), cv::Point(x + 5, y),
-               cv::Scalar(0, 255, 255));
-      cv::line(box, cv::Point(x, y - 5), cv::Point(x, y + 5),
-               cv::Scalar(0, 255, 255));
+      cv::line(box, cv::Point(x - 5, y), cv::Point(x + 5, y), cv::Scalar(0, 255, 255));
+      cv::line(box, cv::Point(x, y - 5), cv::Point(x, y + 5), cv::Scalar(0, 255, 255));
 
       saveImage(g_logDir, L"slider.png", box);
     }
@@ -202,10 +201,8 @@ OnTry:
   }
 
   if (logTimer) {
-    cv::line(box, cv::Point(x - 5, y), cv::Point(x + 5, y),
-             cv::Scalar(0, 255, 255));
-    cv::line(box, cv::Point(x, y - 5), cv::Point(x, y + 5),
-             cv::Scalar(0, 255, 255));
+    cv::line(box, cv::Point(x - 5, y), cv::Point(x + 5, y), cv::Scalar(0, 255, 255));
+    cv::line(box, cv::Point(x, y - 5), cv::Point(x, y + 5), cv::Scalar(0, 255, 255));
   }
 
   arrowRect.x += x;
@@ -216,8 +213,7 @@ OnTry:
 
     if (logTimer) {
       cv::line(box, cv::Point(arrowRect.x, arrowRect.y - 5),
-               cv::Point(arrowRect.x, arrowRect.y + 5),
-               cv::Scalar(0, 255, 255));
+          cv::Point(arrowRect.x, arrowRect.y + 5), cv::Scalar(0, 255, 255));
     }
 
     arrowRect.x += arrowRect.width;
@@ -225,9 +221,9 @@ OnTry:
 
   if (logTimer) {
     cv::line(box, cv::Point(arrowRect.x, arrowRect.y - 5),
-             cv::Point(arrowRect.x, arrowRect.y + 5), cv::Scalar(0, 255, 255));
+        cv::Point(arrowRect.x, arrowRect.y + 5), cv::Scalar(0, 255, 255));
     cv::line(box, cv::Point(arrowRect.x - arrowRect.width * 10, arrowRect.y),
-             cv::Point(arrowRect.x, arrowRect.y), cv::Scalar(0, 255, 255));
+        cv::Point(arrowRect.x, arrowRect.y), cv::Scalar(0, 255, 255));
     saveImage(g_logDir, L"timer.png", box);
   }
 
@@ -238,6 +234,8 @@ OnTry:
     if (--tries > 0) {
       LogPrintf(L"再試一次(%d)", tries);
       goto OnTry;
+    } else {
+      saveImage(g_logErrorsDir, box);
     }
 
     return FISHING_TAKE_DROP;
@@ -442,10 +440,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     g_logDir = buf.data();
     g_logDropsDir = g_logDir + L"Drops\\";
     g_logNodropsDir = g_logDir + L"Nodrops\\";
+    g_logErrorsDir = g_logDir + L"Errors\\";
 
     CreateDirectoryW(g_logDir.c_str(), NULL);
     CreateDirectoryW(g_logDropsDir.c_str(), NULL);
     CreateDirectoryW(g_logNodropsDir.c_str(), NULL);
+    CreateDirectoryW(g_logErrorsDir.c_str(), NULL);
 
     // template folder
     buf.assign(g_curDir.begin(), g_curDir.end());
@@ -522,8 +522,7 @@ void __stdcall SetInteger(const char *key, int val) {
   g_json[key] = val;
 }
 
-void __stdcall GetRect(const char *key, int *x, int *y, int *width,
-                       int *height) {
+void __stdcall GetRect(const char *key, int *x, int *y, int *width, int *height) {
   std::lock_guard<std::mutex> locker(g_mutex);
   cv::Rect rect;
   try {
@@ -576,17 +575,17 @@ void LogPrintf(const wchar_t *fmt, ...) {
   GetLocalTime(&st);
   buf.resize(128);
 
-  swprintf_s(buf.data(), buf.size(), L"%04d-%02d-%02d.log", st.wYear, st.wMonth,
-             st.wDay);
+  swprintf_s(buf.data(), buf.size(), L"%04d-%02d-%02d.log", st.wYear, st.wMonth, st.wDay);
   name = buf.data();
 
   if (g_logName != name) {
+    g_logName = name;
     g_logFile.close();
     g_logFile.open(g_logDir + name, std::ios::app);
   }
 
   swprintf_s(buf.data(), buf.size(), L"[%02d:%02d:%02d.%03d] ", st.wHour,
-             st.wMinute, st.wSecond, st.wMilliseconds);
+      st.wMinute, st.wSecond, st.wMilliseconds);
   str += buf.data();
 
   va_start(ap, fmt);
@@ -596,11 +595,11 @@ void LogPrintf(const wchar_t *fmt, ...) {
   str += buf.data();
 
   if (g_logFile.is_open()) {
-    len = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), (int)str.length(), NULL,
-                              0, NULL, NULL);
+    len = WideCharToMultiByte(
+        CP_UTF8, 0, str.c_str(), (int)str.length(), NULL, 0, NULL, NULL);
     utf.resize(len + 1);
     len = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), (int)str.length(),
-                              utf.data(), (int)utf.size(), NULL, NULL);
+        utf.data(), (int)utf.size(), NULL, NULL);
     utf.resize(len + 1);
 
     g_logFile << utf.data() << std::endl;
