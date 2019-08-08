@@ -84,15 +84,13 @@ namespace HelloFisher
     {
       while (m_running)
       {
-        bool semiauto = m_semiauto;
-
         if ((User32.GetAsyncKeyState(0x91/*SCROLL*/) & 0x0001) != 0)
         {
           m_enabled = (User32.GetKeyState(0x91/*SCROLL*/) & 0x0001) != 0;
           if (m_enabled) m_semiauto = true;
         }
 
-        if ((User32.GetAsyncKeyState(0xC0/*~*/) & 0x0001) != 0)
+        if ((User32.GetAsyncKeyState(0x70/*F1*/) & 0x0001) != 0)
         {
           m_semiauto = true;
         }
@@ -112,6 +110,10 @@ namespace HelloFisher
           if (m_step == FishingSteps.START)
           {
             watch.Restart();
+          }
+          else if (m_step == FishingSteps.RESTART)
+          {
+            m_semiauto = false;
           }
 
           try
@@ -149,10 +151,6 @@ namespace HelloFisher
           else if (m_step == FishingSteps.STOP_LOOP)
           {
             m_step = FishingSteps.STOP;
-            m_semiauto = false;
-          }
-          else if (m_step == FishingSteps.RESTART)
-          {
             m_semiauto = false;
           }
         }
