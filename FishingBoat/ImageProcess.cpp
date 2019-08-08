@@ -138,7 +138,7 @@ bool sliderBar(cv::Mat box, int len, int &x, int &y) {
       int r = p[i * 3 + 2];
 
       // red color
-      if (b <= 50 && g <= 50 && r >= 200) {
+      if (r >= 200 && b < r && g < r) {
         left = i;
       } else {
         break;
@@ -152,7 +152,7 @@ bool sliderBar(cv::Mat box, int len, int &x, int &y) {
       int r = p[i * 3 + 2];
 
       // red color
-      if (b <= 50 && g <= 50 && r >= 200) {
+      if (r >= 200 && b < r && g < r) {
         right = i;
       } else {
         break;

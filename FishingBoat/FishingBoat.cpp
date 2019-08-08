@@ -42,6 +42,8 @@ std::wstring g_logName;
 std::wstring g_logDropsDir;
 std::wstring g_logNodropsDir;
 std::wstring g_logErrorsDir;
+std::wstring g_logSlidersDir;
+std::wstring g_logTimersDir;
 std::wstring g_tmpDir;
 std::wstring g_wasd;
 std::map<std::wstring, cv::Mat> g_tmpls;
@@ -119,10 +121,7 @@ int __stdcall StopFishing() {
     LogPrintf(L"空白鍵(第2次)");
 
     if (logSlider) {
-      cv::line(box, cv::Point(x - 5, y), cv::Point(x + 5, y), cv::Scalar(0, 255, 255));
-      cv::line(box, cv::Point(x, y - 5), cv::Point(x, y + 5), cv::Scalar(0, 255, 255));
-
-      saveImage(g_logDir, L"slider.png", box);
+      saveImage(g_logSlidersDir, box);
     }
 
     return FISHING_GUESS_WASD;
@@ -194,15 +193,10 @@ OnTry:
     LogPrintf(L"完美");
 
     if (logTimer) {
-      saveImage(g_logDir, L"timer.png", box);
+      saveImage(g_logTimersDir, box);
     }
 
     return FISHING_TAKE_DROP;
-  }
-
-  if (logTimer) {
-    cv::line(box, cv::Point(x - 5, y), cv::Point(x + 5, y), cv::Scalar(0, 255, 255));
-    cv::line(box, cv::Point(x, y - 5), cv::Point(x, y + 5), cv::Scalar(0, 255, 255));
   }
 
   arrowRect.x += x;
@@ -210,21 +204,11 @@ OnTry:
 
   for (int i = 0; i < 10; i++) {
     arrs[i] = box(arrowRect).clone();
-
-    if (logTimer) {
-      cv::line(box, cv::Point(arrowRect.x, arrowRect.y - 5),
-          cv::Point(arrowRect.x, arrowRect.y + 5), cv::Scalar(0, 255, 255));
-    }
-
     arrowRect.x += arrowRect.width;
   }
 
   if (logTimer) {
-    cv::line(box, cv::Point(arrowRect.x, arrowRect.y - 5),
-        cv::Point(arrowRect.x, arrowRect.y + 5), cv::Scalar(0, 255, 255));
-    cv::line(box, cv::Point(arrowRect.x - arrowRect.width * 10, arrowRect.y),
-        cv::Point(arrowRect.x, arrowRect.y), cv::Scalar(0, 255, 255));
-    saveImage(g_logDir, L"timer.png", box);
+    saveImage(g_logTimersDir, box);
   }
 
   color = arrowColor(arrs[0]);
@@ -303,6 +287,8 @@ int __stdcall TakeDrop() {
     sleepFor(100);
     box = screenshot(boxRect);
   } while (timerBar(box, timerLen, x, y));
+
+  sleepFor(3000);
 
   box = screenshot(dropRect);
   len = box.cols / 8;
@@ -441,11 +427,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     g_logDropsDir = g_logDir + L"Drops\\";
     g_logNodropsDir = g_logDir + L"Nodrops\\";
     g_logErrorsDir = g_logDir + L"Errors\\";
+    g_logSlidersDir = g_logDir + L"Sliders\\";
+    g_logTimersDir = g_logDir + L"Timers\\";
 
     CreateDirectoryW(g_logDir.c_str(), NULL);
     CreateDirectoryW(g_logDropsDir.c_str(), NULL);
     CreateDirectoryW(g_logNodropsDir.c_str(), NULL);
     CreateDirectoryW(g_logErrorsDir.c_str(), NULL);
+    CreateDirectoryW(g_logSlidersDir.c_str(), NULL);
+    CreateDirectoryW(g_logTimersDir.c_str(), NULL);
 
     // template folder
     buf.assign(g_curDir.begin(), g_curDir.end());
